@@ -56,7 +56,7 @@ export default function PropertySearch({
             transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="w-full max-w-4xl mx-auto"
         >
-            <div className="bg-white rounded-2xl shadow-accent-lg p-2.5 md:p-4">
+            <div className="bg-white rounded-2xl shadow-accent-lg p-2.5 md:p-4 overflow-hidden">
                 <div className="grid grid-cols-2 md:grid-cols-[1fr_1fr_auto_auto] gap-2 md:gap-2 items-end">
                     {/* Check-in */}
                     <div className="relative">
