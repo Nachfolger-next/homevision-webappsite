@@ -59,7 +59,7 @@ export default function PropertySearch({
             <div className="bg-white rounded-2xl shadow-accent-lg p-2.5 md:p-4 overflow-hidden">
                 <div className="grid grid-cols-2 md:grid-cols-[1fr_1fr_auto_auto] gap-2 md:gap-2 items-end">
                     {/* Check-in */}
-                    <div className="relative">
+                    <div className="relative min-w-0">
                         <label className="block text-[10px] uppercase tracking-[0.15em] text-[var(--color-neutral-500)] font-medium mb-1.5 pl-1">
                             {t.checkIn[lang]}
                         </label>
@@ -82,13 +82,13 @@ export default function PropertySearch({
                                 }}
                                 min={today}
                                 required
-                                className="w-full pl-10 pr-3 py-2.5 bg-[var(--color-neutral-100)] rounded-xl text-sm text-[var(--color-text)] border border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all cursor-pointer"
+                                className="w-full min-w-0 pl-10 pr-2 py-2.5 bg-[var(--color-neutral-100)] rounded-xl text-xs md:text-sm text-[var(--color-text)] border border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all cursor-pointer appearance-none"
                             />
                         </div>
                     </div>
 
                     {/* Check-out */}
-                    <div className="relative">
+                    <div className="relative min-w-0">
                         <label className="block text-[10px] uppercase tracking-[0.15em] text-[var(--color-neutral-500)] font-medium mb-1.5 pl-1">
                             {t.checkOut[lang]}
                         </label>
@@ -103,7 +103,7 @@ export default function PropertySearch({
                                 onChange={(e) => setCheckOut(e.target.value)}
                                 min={checkIn || today}
                                 required
-                                className="w-full pl-10 pr-3 py-2.5 bg-[var(--color-neutral-100)] rounded-xl text-sm text-[var(--color-text)] border border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all cursor-pointer"
+                                className="w-full min-w-0 pl-10 pr-2 py-2.5 bg-[var(--color-neutral-100)] rounded-xl text-xs md:text-sm text-[var(--color-text)] border border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all cursor-pointer appearance-none"
                             />
                         </div>
                     </div>
