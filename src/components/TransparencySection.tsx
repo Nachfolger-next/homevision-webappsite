@@ -73,7 +73,7 @@ function MockupChart() {
                     initial={{ pathLength: 0, opacity: 0 }}
                     whileInView={{ pathLength: 1, opacity: 1 }}
                     transition={{ duration: 2, ease: "easeInOut", delay: 0.2 }}
-                    viewport={{ once: true, margin: "-100px" }}
+                    viewport={{ once: true, margin: "-30px" }}
                 />
 
                 {/* Gradient area under path */}
@@ -83,7 +83,7 @@ function MockupChart() {
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 0.15 }}
                     transition={{ duration: 1, delay: 1 }}
-                    viewport={{ once: true, margin: "-100px" }}
+                    viewport={{ once: true, margin: "-30px" }}
                     className="group-hover:opacity-25 transition-opacity duration-500"
                 />
 
