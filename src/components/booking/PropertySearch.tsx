@@ -56,8 +56,8 @@ export default function PropertySearch({
             transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="w-full max-w-4xl mx-auto"
         >
-            <div className="bg-white rounded-2xl shadow-accent-lg p-3 md:p-4">
-                <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto_auto] gap-3 md:gap-2 items-end">
+            <div className="bg-white rounded-2xl shadow-accent-lg p-2.5 md:p-4">
+                <div className="grid grid-cols-2 md:grid-cols-[1fr_1fr_auto_auto] gap-2 md:gap-2 items-end">
                     {/* Check-in */}
                     <div className="relative">
                         <label className="block text-[10px] uppercase tracking-[0.15em] text-[var(--color-neutral-500)] font-medium mb-1.5 pl-1">
@@ -82,7 +82,7 @@ export default function PropertySearch({
                                 }}
                                 min={today}
                                 required
-                                className="w-full pl-10 pr-3 py-3 bg-[var(--color-neutral-100)] rounded-xl text-sm text-[var(--color-text)] border border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all cursor-pointer"
+                                className="w-full pl-10 pr-3 py-2.5 bg-[var(--color-neutral-100)] rounded-xl text-sm text-[var(--color-text)] border border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all cursor-pointer"
                             />
                         </div>
                     </div>
@@ -103,13 +103,13 @@ export default function PropertySearch({
                                 onChange={(e) => setCheckOut(e.target.value)}
                                 min={checkIn || today}
                                 required
-                                className="w-full pl-10 pr-3 py-3 bg-[var(--color-neutral-100)] rounded-xl text-sm text-[var(--color-text)] border border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all cursor-pointer"
+                                className="w-full pl-10 pr-3 py-2.5 bg-[var(--color-neutral-100)] rounded-xl text-sm text-[var(--color-text)] border border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all cursor-pointer"
                             />
                         </div>
                     </div>
 
                     {/* Guests */}
-                    <div className="relative">
+                    <div className="relative col-span-2 md:col-span-1">
                         <label className="block text-[10px] uppercase tracking-[0.15em] text-[var(--color-neutral-500)] font-medium mb-1.5 pl-1">
                             {t.guests[lang]}
                         </label>
@@ -121,7 +121,7 @@ export default function PropertySearch({
                             <select
                                 value={guests}
                                 onChange={(e) => setGuests(parseInt(e.target.value, 10))}
-                                className="w-full pl-10 pr-8 py-3 bg-[var(--color-neutral-100)] rounded-xl text-sm text-[var(--color-text)] border border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all cursor-pointer appearance-none"
+                                className="w-full pl-10 pr-8 py-2.5 bg-[var(--color-neutral-100)] rounded-xl text-sm text-[var(--color-text)] border border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all cursor-pointer appearance-none"
                             >
                                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                                     <option key={n} value={n}>
@@ -138,7 +138,7 @@ export default function PropertySearch({
                         disabled={loading || !checkIn || !checkOut}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="flex items-center justify-center gap-2 px-6 py-3 bg-[var(--color-accent)] text-white rounded-xl text-sm font-semibold hover:bg-[var(--color-accent-dark)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[120px]"
+                        className="col-span-2 md:col-span-1 flex items-center justify-center gap-2 px-6 py-2.5 bg-[var(--color-accent)] text-white rounded-xl text-sm font-semibold hover:bg-[var(--color-accent-dark)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[120px]"
                     >
                         {loading ? (
                             <motion.div
