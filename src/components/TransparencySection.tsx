@@ -276,8 +276,8 @@ export default function TransparencySection({ lang }: { lang: Locale }) {
                                 <div className="space-y-3">
                                     <span className="text-[9px] md:text-[10px] uppercase tracking-widest text-white/40 font-medium block mb-4">{({ el: 'Πρόσφατες Κρατήσεις', en: 'Recent Bookings', ru: 'Последние бронирования', tr: 'Son Rezervasyonlar', bg: 'Скорошни резервации', he: 'הזמנות אחרונות' }[lang] || 'Recent Bookings')}</span>
                                     {[
-                                        { name: 'Villa Mykonos', date: 'Jul 12-15', amount: '€1,250' },
-                                        { name: 'Loft Athens', date: 'Jul 16-18', amount: '€480' },
+                                        { name: 'Richard D. James', date: 'Jul 12-15', amount: '€1,250' },
+                                        { name: 'Jeff Mills', date: 'Jul 16-18', amount: '€480' },
                                     ].map((item, i) => (
                                         <motion.div
                                             key={i}
