@@ -2,8 +2,6 @@ import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const contactSchema = z.object({
     name: z.string().min(1, 'Name is required').max(100),
     email: z.string().email('Invalid email address'),
@@ -23,6 +21,8 @@ const escapeHtml = (unsafe: string) => {
 
 export async function POST(request: Request) {
     try {
+        const resend = new Resend(process.env.RESEND_API_KEY || 'missing_key_during_build');
+
         const body = await request.json();
 
         // Validate input
