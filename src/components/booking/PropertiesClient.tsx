@@ -11,6 +11,7 @@ import PropertyCard from '@/components/booking/PropertyCard';
 import FilterBar, { FilterState } from '@/components/booking/FilterBar';
 import type { PropertyListing } from '@/lib/hostaway-types';
 import type { Locale } from '@/i18n-config';
+import type { Dictionary } from '@/lib/get-dictionary';
 
 // Lazy-load map to avoid SSR issues with Mapbox GL
 const PropertyMap = dynamic(() => import('@/components/booking/PropertyMap'), {
@@ -24,13 +25,16 @@ const PropertyMap = dynamic(() => import('@/components/booking/PropertyMap'), {
 
 interface PropertiesClientProps {
     lang: Locale;
+    initialListings: PropertyListing[];
+    dict: Dictionary;
 }
 
-export default function PropertiesClient({ lang }: PropertiesClientProps) {
-    const [listings, setListings] = useState<PropertyListing[]>([]);
+export default function PropertiesClient({ lang, initialListings, dict }: PropertiesClientProps) {
+    const [listings, setListings] = useState<PropertyListing[]>(initialListings);
     const [availableIds, setAvailableIds] = useState<number[] | null>(null);
     const [loading, setLoading] = useState(false);
-    const [initialLoading, setInitialLoading] = useState(true);
+    // Since we have server data, we are never "initial loading"
+    const [initialLoading, setInitialLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
     const [filters, setFilters] = useState<FilterState>({});
     const [searchDates, setSearchDates] = useState<{ checkIn: string; checkOut: string; guests: number } | null>(null);
@@ -41,24 +45,6 @@ export default function PropertiesClient({ lang }: PropertiesClientProps) {
     const [hoveredListingId, setHoveredListingId] = useState<number | null>(null);
     const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
     const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
-
-    // Fetch all listings on mount
-    useEffect(() => {
-        async function fetchListings() {
-            try {
-                const res = await fetch(`/api/hostaway/listings?lang=${lang}`);
-                const data = await res.json();
-                if (data.success) {
-                    setListings(data.data);
-                }
-            } catch (err) {
-                console.error('Failed to fetch listings:', err);
-            } finally {
-                setInitialLoading(false);
-            }
-        }
-        fetchListings();
-    }, []);
 
     // Get unique locations for the location filter
     const locations = useMemo(
@@ -245,25 +231,45 @@ export default function PropertiesClient({ lang }: PropertiesClientProps) {
 
     // Rendering helpers
     const renderListingCards = (gridCols: string) => (
-        <div className={gridCols}>
-            {displayedListings.map((listing, index) => (
-                <div
-                    key={listing.id}
-                    onMouseEnter={() => handleHoverListing(listing.id)}
-                    onMouseLeave={() => handleHoverListing(null)}
-                >
-                    <PropertyCard
-                        property={listing}
-                        lang={lang}
-                        index={index}
-                        checkIn={searchDates?.checkIn}
-                        checkOut={searchDates?.checkOut}
-                        guests={searchDates?.guests}
-                        allInNightlyRate={pricingMap[listing.id]}
-                    />
-                </div>
-            ))}
-        </div>
+        <motion.div 
+            className={gridCols}
+            variants={{
+                hidden: { opacity: 0 },
+                show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.1 }
+                }
+            }}
+            initial="hidden"
+            animate="show"
+        >
+            <AnimatePresence mode="popLayout">
+                {displayedListings.map((listing, index) => (
+                    <motion.div
+                        key={listing.id}
+                        layout
+                        variants={{
+                            hidden: { opacity: 0, y: 40, scale: 0.95 },
+                            show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 100, damping: 15 } }
+                        }}
+                        exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                        onMouseEnter={() => handleHoverListing(listing.id)}
+                        onMouseLeave={() => handleHoverListing(null)}
+                    >
+                        <PropertyCard
+                            property={listing}
+                            lang={lang}
+                            index={index}
+                            checkIn={searchDates?.checkIn}
+                            checkOut={searchDates?.checkOut}
+                            guests={searchDates?.guests}
+                            allInNightlyRate={pricingMap[listing.id]}
+                            dict={dict}
+                        />
+                    </motion.div>
+                ))}
+            </AnimatePresence>
+        </motion.div>
     );
 
     const renderSkeletons = (count: number, gridCols: string) => (
@@ -308,9 +314,9 @@ export default function PropertiesClient({ lang }: PropertiesClientProps) {
 
             <main className="min-h-screen bg-[var(--color-background)]">
                 {/* Hero Section */}
-                <section className="relative bg-[#13242E] pt-32 pb-20 md:pt-40 md:pb-28 2xl:pb-40 grain-overlay overflow-hidden">
+                <section className="relative bg-[#13242E] pt-32 pb-20 md:pt-40 md:pb-28 2xl:pb-40 grain-overlay">
                     {/* Background gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-[#1a3a4d]/80 via-[#447d9c]/20 to-[#13242E]" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#1a3a4d]/80 via-[#447d9c]/20 to-[#13242E] pointer-events-none" />
 
                     <div className="container relative z-10">
                         {/* Signature line */}
@@ -447,6 +453,7 @@ export default function PropertiesClient({ lang }: PropertiesClientProps) {
                                         checkIn={searchDates?.checkIn}
                                         checkOut={searchDates?.checkOut}
                                         guests={searchDates?.guests}
+                                        dict={dict}
                                     />
                                 </div>
                             </div>
@@ -501,6 +508,7 @@ export default function PropertiesClient({ lang }: PropertiesClientProps) {
                                             checkIn={searchDates?.checkIn}
                                             checkOut={searchDates?.checkOut}
                                             guests={searchDates?.guests}
+                                            dict={dict}
                                         />
                                     )}
                                 </motion.div>

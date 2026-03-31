@@ -1,11 +1,32 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Script from 'next/script';
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
+function hasConsent(): boolean {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('cookie-consent') === 'accepted';
+}
+
 export default function GoogleAnalytics() {
-    if (!GA_MEASUREMENT_ID) return null;
+    const [consentGiven, setConsentGiven] = useState(false);
+
+    useEffect(() => {
+        // Check initial consent
+        setConsentGiven(hasConsent());
+
+        // Listen for consent changes from CookieConsent component
+        const handleConsentChange = () => {
+            setConsentGiven(hasConsent());
+        };
+
+        window.addEventListener('cookie-consent-change', handleConsentChange);
+        return () => window.removeEventListener('cookie-consent-change', handleConsentChange);
+    }, []);
+
+    if (!GA_MEASUREMENT_ID || !consentGiven) return null;
 
     return (
         <>

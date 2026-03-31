@@ -18,6 +18,7 @@ import type {
     PricingResult,
     BookingInquiry,
     BookingConfirmation,
+    HostawayBedTypeDictionary,
 } from './hostaway-types';
 import { translateText } from './translate';
 
@@ -184,6 +185,31 @@ function generateSlug(name: string, id: number): string {
     return `${base}-${id}`;
 }
 
+// ─── Dictionary Caching ─────────────────────────────────────
+
+let cachedBedTypes: HostawayBedTypeDictionary[] | null = null;
+let bedTypesPromise: Promise<HostawayBedTypeDictionary[]> | null = null;
+
+export async function getBedTypes(): Promise<HostawayBedTypeDictionary[]> {
+    if (cachedBedTypes) return cachedBedTypes;
+    if (bedTypesPromise) return bedTypesPromise;
+
+    bedTypesPromise = (async () => {
+        try {
+            const result = await hostawayFetch<HostawayBedTypeDictionary[]>('/bedTypes');
+            cachedBedTypes = result;
+            return cachedBedTypes;
+        } catch (e) {
+            console.error('Failed to fetch bed Types:', e);
+            return [];
+        } finally {
+            bedTypesPromise = null;
+        }
+    })();
+
+    return bedTypesPromise;
+}
+
 // ─── Listing Sanitization ───────────────────────────────────
 
 async function sanitizeListing(
@@ -194,20 +220,10 @@ async function sanitizeListing(
     let tDesc = listing.description;
 
     try {
-        if (lang === 'el') {
-            const translations = (await import('@/translations/properties-el.json')).default as Record<string, { name: string, description: string }>;
-            if (translations[listing.id.toString()]) {
+        if (lang !== 'en') {
+            const translations = (await import(`@/translations/properties-${lang}.json`)).default as Record<string, { name: string, description: string }>;
+            if (translations && translations[listing.id.toString()]) {
                 tDesc = translations[listing.id.toString()].description || tDesc;
-            }
-        } else if (lang === 'ru') {
-            // Safe fallback if 'ru' is added later
-            try {
-                const translations = (await import(`@/translations/properties-ru.json`)).default as Record<string, { name: string, description: string }>;
-                if (translations[listing.id.toString()]) {
-                    tDesc = translations[listing.id.toString()].description || tDesc;
-                }
-            } catch (e) {
-                // file missing
             }
         }
     } catch (e) {
@@ -216,6 +232,15 @@ async function sanitizeListing(
             tDesc = await translateText(listing.description, lang);
         }
     }
+
+    const bedTypesDict = await getBedTypes();
+    const bedTypesMap = new Map(bedTypesDict.map(b => [b.id, b.name]));
+
+    const mappedBedTypes = (listing.listingBedTypes || []).map(b => ({
+        id: b.id,
+        name: bedTypesMap.get(b.bedTypeId) || 'Bed',
+        quantity: b.quantity
+    }));
 
     return {
         id: listing.id,
@@ -240,6 +265,7 @@ async function sanitizeListing(
         minNights: listing.minNights,
         currencyCode: listing.currencyCode,
         amenityIds: listing.listingAmenities?.map((a) => a.amenityId) ?? [],
+        bedTypes: mappedBedTypes,
         images:
             listing.listingImages
                 ?.sort((a, b) => a.sortOrder - b.sortOrder)
@@ -647,10 +673,8 @@ export async function getAmenities(lang: string = 'en'): Promise<HostawayAmenity
         // Try to load pre-calculated static map for amenities
         let translations: Record<string, string> = {};
         try {
-            if (lang === 'el') {
-                translations = (await import('@/translations/amenities-el.json')).default;
-            } else if (lang === 'ru') {
-                translations = (await import('@/translations/amenities-ru.json')).default;
+            if (lang !== 'en') {
+                translations = (await import(`@/translations/amenities-${lang}.json`)).default;
             }
         } catch (e) {
             console.warn(`Could not load amenity translations for lang: ${lang}`);

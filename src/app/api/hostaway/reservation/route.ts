@@ -1,72 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createBookingInquiry } from '@/lib/hostaway';
 import type { BookingInquiry } from '@/lib/hostaway-types';
+import { z } from 'zod';
+
+const bookingSchema = z.object({
+    listingId: z.union([z.string(), z.number()]).transform((val) => parseInt(String(val), 10)),
+    checkIn: z.string().min(10), // e.g. YYYY-MM-DD
+    checkOut: z.string().min(10),
+    guests: z.union([z.string(), z.number()]).transform((val) => parseInt(String(val), 10)),
+    adults: z.union([z.string(), z.number()]).optional().transform((val) => val ? parseInt(String(val), 10) : undefined),
+    children: z.union([z.string(), z.number()]).optional().transform((val) => val ? parseInt(String(val), 10) : 0),
+    guestFirstName: z.string().min(1, 'First name is required'),
+    guestLastName: z.string().min(1, 'Last name is required'),
+    guestEmail: z.string().email('Invalid email address'),
+    guestPhone: z.string().min(5, 'Phone number is required'),
+    specialRequests: z.string().optional(),
+    totalPrice: z.union([z.string(), z.number()]).optional().transform((val) => val ? parseFloat(String(val)) : 0),
+    currency: z.string().optional().default('EUR'),
+    couponCode: z.string().optional(),
+});
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const {
-            listingId,
-            checkIn,
-            checkOut,
-            guests,
-            adults,
-            children,
-            guestFirstName,
-            guestLastName,
-            guestEmail,
-            guestPhone,
-            specialRequests,
-            totalPrice,
-            currency,
-            couponCode,
-        } = body;
-
-        // Validate required fields
-        if (
-            !listingId ||
-            !checkIn ||
-            !checkOut ||
-            !guests ||
-            !guestFirstName ||
-            !guestLastName ||
-            !guestEmail ||
-            !guestPhone
-        ) {
+        
+        let validatedData;
+        try {
+            validatedData = bookingSchema.parse(body);
+        } catch (validationError: any) {
             return NextResponse.json(
-                { success: false, error: 'Missing required booking fields' },
-                { status: 400 }
-            );
-        }
-
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(guestEmail)) {
-            return NextResponse.json(
-                { success: false, error: 'Invalid email address' },
+                { success: false, error: 'Validation failed', details: validationError.errors },
                 { status: 400 }
             );
         }
 
         const inquiry: BookingInquiry = {
-            listingId: parseInt(listingId, 10),
-            checkIn,
-            checkOut,
-            guests: parseInt(guests, 10),
-            adults: parseInt(adults, 10) || parseInt(guests, 10),
-            children: parseInt(children, 10) || 0,
-            guestFirstName,
-            guestLastName,
-            guestEmail,
-            guestPhone,
-            specialRequests: specialRequests || '',
-            couponCode,
+            listingId: validatedData.listingId,
+            checkIn: validatedData.checkIn,
+            checkOut: validatedData.checkOut,
+            guests: validatedData.guests,
+            adults: validatedData.adults || validatedData.guests,
+            children: validatedData.children || 0,
+            guestFirstName: validatedData.guestFirstName,
+            guestLastName: validatedData.guestLastName,
+            guestEmail: validatedData.guestEmail,
+            guestPhone: validatedData.guestPhone,
+            specialRequests: validatedData.specialRequests || '',
+            couponCode: validatedData.couponCode,
         };
 
         const result = await createBookingInquiry(
             inquiry,
-            parseFloat(totalPrice) || 0,
-            currency || 'EUR'
+            validatedData.totalPrice,
+            validatedData.currency
         );
 
         if (result.success) {

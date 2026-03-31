@@ -7,6 +7,7 @@ import type { PropertyListing } from '@/lib/hostaway-types';
 import { Star, Map as MapIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { t, Dictionary } from '@/lib/get-dictionary';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
@@ -23,6 +24,7 @@ interface PropertyMapProps {
     checkIn?: string;
     checkOut?: string;
     guests?: number;
+    dict?: Dictionary;
 }
 
 export default function PropertyMap({
@@ -35,6 +37,7 @@ export default function PropertyMap({
     checkIn,
     checkOut,
     guests,
+    dict = {},
 }: PropertyMapProps) {
     const mapRef = useRef<any>(null);
 
@@ -204,7 +207,7 @@ export default function PropertyMap({
                                 </div>
                             ) : (
                                 <div className="w-full h-full bg-neutral-200 flex items-center justify-center text-neutral-400">
-                                    No Image
+                                    {t(dict, 'property.noImage', 'No Image')}
                                 </div>
                             )}
 
@@ -232,12 +235,12 @@ export default function PropertyMap({
 
                             <div className="flex items-end justify-between mt-3">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] text-neutral-500 mb-0.5">Total price</span>
+                                    <span className="text-[10px] text-neutral-500 mb-0.5">{t(dict, 'booking.totalPrice', 'Total price')}</span>
                                     <div className="flex items-baseline gap-1">
                                         <span className="text-sm font-bold text-[var(--color-text)] tracking-tight">
                                             €{Math.round(pricingMap[selectedListing.id] ?? selectedListing.price)}
                                         </span>
-                                        <span className="text-[10px] text-neutral-500 font-medium">/night</span>
+                                        <span className="text-[10px] text-neutral-500 font-medium">{t(dict, 'booking.perNight', '/night')}</span>
                                     </div>
                                 </div>
 
@@ -250,7 +253,7 @@ export default function PropertyMap({
                                     </div>
                                 ) : (
                                     <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-md shadow-sm border border-neutral-100">
-                                        <span className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider">New</span>
+                                        <span className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider">{t(dict, 'property.new', 'New')}</span>
                                     </div>
                                 )}
                             </div>

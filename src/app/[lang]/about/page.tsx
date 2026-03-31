@@ -97,14 +97,31 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
         support: { el: 'Υποστήριξη', en: 'Support', ru: 'Поддержка', tr: 'Destek', bg: 'Поддръжка', he: 'תמיכה' },
     };
 
+    const aboutSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        name: 'About Homevision',
+        description: 'Meet the team behind Homevision. Learn about our story, values, and mission to elevate hospitality across Greece.',
+        url: 'https://homevision.gr/about',
+        publisher: {
+            '@type': 'Organization',
+            name: 'Homevision',
+            logo: {
+                '@type': 'ImageObject',
+                url: 'https://homevision.gr/logo-color.png'
+            }
+        }
+    };
+
     return (
         <main className="min-h-screen bg-[var(--color-background)]">
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }} />
             <Header lang={lang} theme="dark" />
 
             {/* Hero */}
             <section className="relative h-[70vh] flex items-end overflow-hidden grain-overlay">
                 <Image
-                    src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2653&auto=format&fit=crop"
+                    src="/about_us_hero.webp"
                     alt="About Hero"
                     fill
                     className="object-cover"

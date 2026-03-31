@@ -1,17 +1,27 @@
 import { Locale } from '@/i18n-config';
 import { getAlternates } from '@/lib/metadata';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
-export const metadata = {
-    title: 'Όροι Χρήσης | Homevision',
-    description: 'Όροι Χρήσης και παροχής υπηρεσιών της Homevision.',
-    alternates: getAlternates('/terms'),
+const getLocalized = (obj: Record<string, string>, lang: string) => obj[lang] || obj['en'] || '';
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }) {
+    const { lang } = await params;
+    const title = lang === 'el' ? 'Όροι Χρήσης | Homevision' : 'Terms of Service | Homevision';
+    const description = lang === 'el'
+        ? 'Όροι Χρήσης και παροχής υπηρεσιών της Homevision.'
+        : 'Terms of Service for Homevision property management services.';
+    return { title, description, alternates: getAlternates('/terms') };
+}
+
+const labels = {
+    title: { el: 'Όροι Χρήσης', en: 'Terms of Service', ru: 'Условия использования', tr: 'Kullanım Koşulları', bg: 'Условия за ползване', he: 'תנאי שימוש' },
+    lastUpdated: { el: 'Τελευταία ενημέρωση: Φεβρουάριος 2026', en: 'Last updated: February 2026', ru: 'Последнее обновление: Февраль 2026', tr: 'Son güncelleme: Şubat 2026', bg: 'Последна актуализация: Февруари 2026', he: 'עדכון אחרון: פברואר 2026' },
 };
 
-export default function TermsPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function TermsPage({ params }: { params: Promise<{ lang: Locale }> }) {
+    const { lang } = await params;
     const isGreek = lang === 'el';
-
-    const title = isGreek ? 'Όροι Χρήσης' : 'Terms of Service';
-    const lastUpdated = isGreek ? 'Τελευταία ενημέρωση: Φεβρουάριος 2026' : 'Last updated: February 2026';
 
     const content = isGreek ? (
         <>
@@ -72,7 +82,7 @@ export default function TermsPage({ params: { lang } }: { params: { lang: Locale
             </section>
 
             <section className="mb-10">
-                <h2 className="text-2xl font-serif mb-4">3. Owner's Responsibilities</h2>
+                <h2 className="text-2xl font-serif mb-4">3. Owner&apos;s Responsibilities</h2>
                 <p className="mb-4">As the property owner, you guarantee that:</p>
                 <ul className="list-disc pl-5 space-y-2 mb-4">
                     <li>You have the legal right to rent the property.</li>
@@ -92,14 +102,18 @@ export default function TermsPage({ params: { lang } }: { params: { lang: Locale
     );
 
     return (
-        <main className="bg-white pt-32 pb-24 font-sans text-[var(--color-neutral-800)] text-base/relaxed">
-            <div className="container max-w-3xl">
-                <h1 className="text-4xl md:text-5xl font-serif mb-4 tracking-[-0.03em]">{title}</h1>
-                <p className="text-[var(--color-neutral-500)] text-sm mb-12 uppercase tracking-wide">{lastUpdated}</p>
-                <div className="prose prose-neutral max-w-none">
-                    {content}
+        <main className="min-h-screen bg-white flex flex-col">
+            <Header lang={lang} />
+            <div className="flex-1 pt-32 pb-24 font-sans text-[var(--color-text)] text-base/relaxed">
+                <div className="container max-w-3xl">
+                    <h1 className="text-4xl md:text-5xl font-serif mb-4 tracking-[-0.03em]">{getLocalized(labels.title, lang)}</h1>
+                    <p className="text-[var(--color-neutral-500)] text-sm mb-12 uppercase tracking-wide">{getLocalized(labels.lastUpdated, lang)}</p>
+                    <div className="prose prose-neutral max-w-none">
+                        {content}
+                    </div>
                 </div>
             </div>
+            <Footer lang={lang} />
         </main>
     );
 }

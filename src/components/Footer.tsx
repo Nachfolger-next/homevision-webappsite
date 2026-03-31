@@ -19,6 +19,8 @@ const labels = {
     copyright: { el: 'Με επιφύλαξη παντός δικαιώματος.', en: 'All rights reserved.', ru: 'Все права защищены.', tr: 'Tüm hakları saklıdır.', bg: 'Всички права запазени.', he: 'כל הזכויות שמורות.' },
     privacy: { el: 'Απόρρητο', en: 'Privacy', ru: 'Конфиденциальность', tr: 'Gizlilik', bg: 'Поверителност', he: 'פרטיות' },
     terms: { el: 'Όροι', en: 'Terms', ru: 'Условия', tr: 'Şartlar', bg: 'Условия', he: 'תנאים' },
+    portfolio: { el: 'Portfolio', en: 'Portfolio', ru: 'Портфолио', tr: 'Portföy', bg: 'Портфолио', he: 'תיק עבודות' },
+    journal: { el: 'Journal', en: 'Journal', ru: 'Журнал', tr: 'Dergi', bg: 'Журнал', he: 'יומן' },
 };
 
 export default function Footer({ lang = 'en' as Locale }: { lang?: Locale }) {
@@ -50,8 +52,8 @@ export default function Footer({ lang = 'en' as Locale }: { lang?: Locale }) {
                         <ul className="space-y-3">
                             <li><Link href={`/${lang}/about`} className="text-sm hover:text-white transition-colors">{getLocalized(labels.aboutUs, lang)}</Link></li>
                             <li><Link href={`/${lang}/services`} className="text-sm hover:text-white transition-colors">{getLocalized(labels.services, lang)}</Link></li>
-                            <li><Link href={`/${lang}/portfolio`} className="text-sm hover:text-white transition-colors">Portfolio</Link></li>
-                            {lang === 'el' && <li><Link href={`/${lang}/journal`} className="text-sm hover:text-white transition-colors">Journal</Link></li>}
+                            <li><Link href={`/${lang}/portfolio`} className="text-sm hover:text-white transition-colors">{getLocalized(labels.portfolio, lang)}</Link></li>
+                            {lang === 'el' && <li><Link href={`/${lang}/journal`} className="text-sm hover:text-white transition-colors">{getLocalized(labels.journal, lang)}</Link></li>}
                         </ul>
                     </div>
 
@@ -79,8 +81,15 @@ export default function Footer({ lang = 'en' as Locale }: { lang?: Locale }) {
 
                 {/* Bottom bar */}
                 <div className="border-t border-white/[0.06] pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-[11px] text-white/20 tracking-wider">© 2026 Homevision IKE. {getLocalized(labels.copyright, lang)}</p>
-                    <div className="flex gap-6">
+                    <p className="text-[11px] text-white/20 tracking-wider">© {new Date().getFullYear()} Homevision IKE. {getLocalized(labels.copyright, lang)}</p>
+                    <div className="flex gap-6 items-center">
+                        <a href="https://www.instagram.com/homevision.gr/" target="_blank" rel="noopener noreferrer" className="text-white/20 hover:text-white transition-colors" aria-label="Instagram">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                            </svg>
+                        </a>
                         <Link href={`/${lang}/privacy`} className="text-[11px] text-white/20 hover:text-white transition-colors tracking-wider">{getLocalized(labels.privacy, lang)}</Link>
                         <Link href={`/${lang}/terms`} className="text-[11px] text-white/20 hover:text-white transition-colors tracking-wider">{getLocalized(labels.terms, lang)}</Link>
                     </div>

@@ -1,18 +1,56 @@
 import { Resend } from 'resend';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { rateLimit, rateLimitResponse, getClientIp } from '@/lib/rate-limit';
+
+const leadSchema = z.object({
+    name: z.string().min(1, 'Name is required').max(100),
+    email: z.string().email('Invalid email address'),
+    phone: z.string().max(50).optional(),
+    wantsAnalysis: z.boolean().optional(),
+    address: z.string().max(300).optional(),
+    bedrooms: z.number().min(0).max(20).optional(),
+    finish: z.string().max(50).optional(),
+    seaView: z.boolean().optional(),
+    pool: z.boolean().optional(),
+    revenue: z.object({
+        min: z.number().optional(),
+        max: z.number().optional(),
+    }).optional(),
+});
+
+const escapeHtml = (unsafe: string) => {
+    if (!unsafe) return '';
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+};
 
 export async function POST(req: NextRequest) {
     try {
+        // Rate limiting
+        const ip = getClientIp(req);
+        const { allowed } = rateLimit(ip);
+        if (!allowed) return rateLimitResponse();
+
         const resend = new Resend(process.env.RESEND_API_KEY || 'missing_key_during_build');
         const body = await req.json();
-        const { name, email, phone, wantsAnalysis, address, bedrooms, finish, seaView, pool, revenue } = body;
 
-        // Validate required fields
-        if (!name || !email) {
-            return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
-        }
+        // Validate input
+        const validatedData = leadSchema.parse(body);
+        const { name, email, phone, wantsAnalysis, address, bedrooms, finish, seaView, pool, revenue } = validatedData;
 
         const toEmail = process.env.LEAD_NOTIFICATION_EMAIL || 'info@homevision.gr';
+
+        // Escape all user inputs
+        const safeName = escapeHtml(name);
+        const safeEmail = escapeHtml(email);
+        const safePhone = escapeHtml(phone || '');
+        const safeAddress = escapeHtml(address || '');
+        const safeFinish = escapeHtml(finish || '');
 
         // Build a clean HTML email
         const html = `
@@ -30,9 +68,9 @@ export async function POST(req: NextRequest) {
                 <div style="padding: 32px 24px;">
                     <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 16px; border: 1px solid #e5e5e5;">
                         <h2 style="margin: 0 0 12px; font-size: 14px; color: #447d9c; text-transform: uppercase; letter-spacing: 1px;">Contact</h2>
-                        <p style="margin: 4px 0; font-size: 15px;"><strong>${name}</strong></p>
-                        <p style="margin: 4px 0; font-size: 15px;"><a href="mailto:${email}" style="color: #447d9c;">${email}</a></p>
-                        ${phone ? `<p style="margin: 4px 0; font-size: 15px;"><a href="tel:${phone}" style="color: #447d9c;">📞 ${phone}</a></p>` : ''}
+                        <p style="margin: 4px 0; font-size: 15px;"><strong>${safeName}</strong></p>
+                        <p style="margin: 4px 0; font-size: 15px;"><a href="mailto:${safeEmail}" style="color: #447d9c;">${safeEmail}</a></p>
+                        ${safePhone ? `<p style="margin: 4px 0; font-size: 15px;"><a href="tel:${safePhone}" style="color: #447d9c;">📞 ${safePhone}</a></p>` : ''}
                     </div>
 
                     <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 16px; border: 1px solid #e5e5e5;">
@@ -40,15 +78,15 @@ export async function POST(req: NextRequest) {
                         <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
                             <tr>
                                 <td style="padding: 6px 0; color: #888;">Address</td>
-                                <td style="padding: 6px 0; text-align: right; font-weight: 500;">${address || 'Not provided'}</td>
+                                <td style="padding: 6px 0; text-align: right; font-weight: 500;">${safeAddress || 'Not provided'}</td>
                             </tr>
                             <tr>
                                 <td style="padding: 6px 0; color: #888;">Bedrooms</td>
-                                <td style="padding: 6px 0; text-align: right; font-weight: 500;">${bedrooms}${bedrooms === 5 ? '+' : ''}</td>
+                                <td style="padding: 6px 0; text-align: right; font-weight: 500;">${bedrooms ?? 'N/A'}${bedrooms === 5 ? '+' : ''}</td>
                             </tr>
                             <tr>
                                 <td style="padding: 6px 0; color: #888;">Finish Level</td>
-                                <td style="padding: 6px 0; text-align: right; font-weight: 500;">${finish}</td>
+                                <td style="padding: 6px 0; text-align: right; font-weight: 500;">${safeFinish || 'N/A'}</td>
                             </tr>
                             <tr>
                                 <td style="padding: 6px 0; color: #888;">Sea View</td>
@@ -78,9 +116,9 @@ export async function POST(req: NextRequest) {
         const { data, error } = await resend.emails.send({
             from: 'HomeVision Leads <leads@send.homevision.gr>',
             to: [toEmail],
-            subject: `${wantsAnalysis ? '⭐ ' : ''}🏠 New Lead: ${name} — ${address || 'No address'}`,
+            subject: `${wantsAnalysis ? '⭐ ' : ''}🏠 New Lead: ${safeName} — ${safeAddress || 'No address'}`,
             html,
-            replyTo: email,
+            replyTo: safeEmail,
         });
 
         if (error) {
@@ -90,6 +128,9 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ success: true, id: data?.id });
     } catch (err) {
+        if (err instanceof z.ZodError) {
+            return NextResponse.json({ error: err.issues[0].message }, { status: 400 });
+        }
         console.error('API error:', err);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }

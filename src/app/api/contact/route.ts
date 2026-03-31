@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { rateLimit, rateLimitResponse, getClientIp } from '@/lib/rate-limit';
 
 const contactSchema = z.object({
     name: z.string().min(1, 'Name is required').max(100),
@@ -8,6 +9,7 @@ const contactSchema = z.object({
     phone: z.string().max(50).optional(),
     message: z.string().max(2000).optional(),
 });
+
 
 const escapeHtml = (unsafe: string) => {
     if (!unsafe) return '';
@@ -21,6 +23,11 @@ const escapeHtml = (unsafe: string) => {
 
 export async function POST(request: Request) {
     try {
+        // Rate limiting
+        const ip = getClientIp(request);
+        const { allowed } = rateLimit(ip);
+        if (!allowed) return rateLimitResponse();
+
         const resend = new Resend(process.env.RESEND_API_KEY || 'missing_key_during_build');
 
         const body = await request.json();

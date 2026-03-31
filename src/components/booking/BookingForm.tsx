@@ -12,6 +12,7 @@ import {
     CreditCard,
     Clock,
     Star,
+    AlertCircle,
 } from 'lucide-react';
 import { t, Dictionary } from '@/lib/get-dictionary';
 
@@ -72,13 +73,43 @@ export default function BookingForm({
     const [phone, setPhone] = useState('');
     const [specialRequests, setSpecialRequests] = useState('');
     const [focusedField, setFocusedField] = useState<string | null>(null);
+    const [touched, setTouched] = useState<Record<string, boolean>>({});
 
     const nights = Math.ceil(
         (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
         (1000 * 60 * 60 * 24)
     );
 
-    const isFormValid = firstName && lastName && email && phone;
+    const validations = {
+        firstName: firstName.trim().length > 0,
+        lastName: lastName.trim().length > 0,
+        email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+        phone: phone.trim().length >= 5
+    };
+
+    const isFormValid = validations.firstName && validations.lastName && validations.email && validations.phone;
+
+    const handleBlur = (field: string) => {
+        setFocusedField(null);
+        setTouched(prev => ({ ...prev, [field]: true }));
+    };
+
+    const getInputClassName = (field: string, isValid: boolean) => {
+        const base = "w-full pt-6 pb-2 px-4 bg-[var(--color-neutral-100)] rounded-xl text-sm border-2 transition-all focus:bg-white focus:outline-none";
+        if (!touched[field]) return `${base} border-transparent focus:border-[var(--color-accent)]`;
+        return isValid 
+            ? `${base} border-[var(--color-success)]/40 focus:border-[var(--color-success)]`
+            : `${base} border-red-300 focus:border-red-400`;
+    };
+
+    const renderValidationIcon = (field: string, isValid: boolean) => {
+        if (!touched[field]) return null;
+        return isValid ? (
+            <CheckCircle size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-success)]" />
+        ) : (
+            <AlertCircle size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-red-500" />
+        );
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -247,10 +278,11 @@ export default function BookingForm({
                                     value={firstName}
                                     onChange={(e) => setFirstName(e.target.value)}
                                     onFocus={() => setFocusedField('firstName')}
-                                    onBlur={() => setFocusedField(null)}
+                                    onBlur={() => handleBlur('firstName')}
                                     required
-                                    className="w-full pt-6 pb-2 px-4 bg-[var(--color-neutral-100)] rounded-xl text-sm border-2 border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all"
+                                    className={getInputClassName('firstName', validations.firstName)}
                                 />
+                                {renderValidationIcon('firstName', validations.firstName)}
                             </div>
                             <div className="relative">
                                 <label
@@ -266,10 +298,11 @@ export default function BookingForm({
                                     value={lastName}
                                     onChange={(e) => setLastName(e.target.value)}
                                     onFocus={() => setFocusedField('lastName')}
-                                    onBlur={() => setFocusedField(null)}
+                                    onBlur={() => handleBlur('lastName')}
                                     required
-                                    className="w-full pt-6 pb-2 px-4 bg-[var(--color-neutral-100)] rounded-xl text-sm border-2 border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all"
+                                    className={getInputClassName('lastName', validations.lastName)}
                                 />
+                                {renderValidationIcon('lastName', validations.lastName)}
                             </div>
                         </div>
 
@@ -287,10 +320,11 @@ export default function BookingForm({
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 onFocus={() => setFocusedField('email')}
-                                onBlur={() => setFocusedField(null)}
+                                onBlur={() => handleBlur('email')}
                                 required
-                                className="w-full pt-6 pb-2 px-4 bg-[var(--color-neutral-100)] rounded-xl text-sm border-2 border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all"
+                                className={getInputClassName('email', validations.email)}
                             />
+                            {renderValidationIcon('email', validations.email)}
                         </div>
 
                         <div className="relative">
@@ -307,10 +341,11 @@ export default function BookingForm({
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
                                 onFocus={() => setFocusedField('phone')}
-                                onBlur={() => setFocusedField(null)}
+                                onBlur={() => handleBlur('phone')}
                                 required
-                                className="w-full pt-6 pb-2 px-4 bg-[var(--color-neutral-100)] rounded-xl text-sm border-2 border-transparent focus:border-[var(--color-accent)] focus:bg-white focus:outline-none transition-all"
+                                className={getInputClassName('phone', validations.phone)}
                             />
+                            {renderValidationIcon('phone', validations.phone)}
                         </div>
                     </div>
 

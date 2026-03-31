@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Locale } from '@/i18n-config';
+import MagneticButton from '@/components/ui/MagneticButton';
 
 const content = {
     title: {
@@ -23,26 +24,29 @@ const content = {
         he: 'כל חודש שהנכס שלכם עומד ריק או מתפקד מתחת, אתם מפסידים הכנסות. בואו נשנה את זה, לא משנה איפה אתם גרים.',
     },
     cta: {
-        el: 'Μιλήστε με την Ομάδα μας',
-        en: 'Book a Call With Us',
-        ru: 'Запишитесь на звонок',
-        tr: 'Bizimle Görüşme Ayarlayın',
-        bg: 'Запишете се за разговор',
-        he: 'קבעו שיחה איתנו',
+        el: 'Επικοινωνήστε Μαζί Μας',
+        en: 'Get in Touch',
+        ru: 'Свяжитесь с нами',
+        tr: 'Bize Ulaşın',
+        bg: 'Свържете се с нас',
+        he: 'צרו קשר',
     },
     ctaSecondary: {
-        el: 'Ξεκινήστε τη Δωρεάν Εκτίμηση',
-        en: 'Get Your Free Revenue Estimate',
-        ru: 'Получите бесплатную оценку дохода',
-        tr: 'Ücretsiz Gelir Tahmininizi Alın',
-        bg: 'Вземете безплатна оценка на приходите',
-        he: 'קבלו הערכת הכנסות חינם',
+        el: 'Ζητήστε Δωρεάν Εκτίμηση Εσόδων',
+        en: 'Request a Revenue Estimate',
+        ru: 'Запросите оценку дохода',
+        tr: 'Gelir Tahmini Talep Edin',
+        bg: 'Поискайте оценка на приходите',
+        he: 'בקשו הערכת הכנסות',
     },
 };
 
 const getLocalized = (obj: Record<string, string>, lang: string) => obj[lang] || obj['en'] || '';
 
-export default function CallToAction({ lang }: { lang: Locale }) {
+export default function CallToAction({ lang, isContactPage }: { lang: Locale, isContactPage?: boolean }) {
+    const defaultHref = `/${lang}/contact`;
+    const targetHref = isContactPage ? '#contact-top' : defaultHref;
+
     return (
         <section className="relative py-32 md:py-40 overflow-hidden grain-overlay">
             {/* Background */}
@@ -79,16 +83,17 @@ export default function CallToAction({ lang }: { lang: Locale }) {
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <Link
-                            href={`/${lang}/contact`}
-                            className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-white px-8 py-4 rounded-full text-xs uppercase tracking-[0.15em] font-bold hover:bg-[var(--color-accent-dark)] transition-colors group"
+                        <MagneticButton
+                            href={targetHref}
+                            className="bg-[var(--color-accent)] text-white px-8 py-4 rounded-full text-xs uppercase tracking-[0.15em] font-bold hover:bg-[var(--color-accent-dark)] transition-colors group"
                             style={{ boxShadow: '0 8px 30px rgba(68, 125, 156, 0.3)' }}
+                            magneticIntensity={0.2}
                         >
                             {getLocalized(content.cta, lang)}
                             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                        </Link>
+                        </MagneticButton>
                         <Link
-                            href={`/${lang}/services`}
+                            href={targetHref}
                             className="inline-flex items-center gap-2 text-white/50 text-xs uppercase tracking-[0.15em] font-medium border-b border-white/20 pb-1 hover:text-white hover:border-white/40 transition-all"
                         >
                             {getLocalized(content.ctaSecondary, lang)}

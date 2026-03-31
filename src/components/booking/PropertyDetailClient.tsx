@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import ImageGallery from '@/components/booking/ImageGallery';
 import BookingCard from '@/components/booking/BookingCard';
 import BookingForm from '@/components/booking/BookingForm';
+import BedConfiguration from '@/components/booking/BedConfiguration';
 import {
     Star,
     MapPin,
@@ -559,6 +560,17 @@ export default function PropertyDetailClient({
                                     </button>
                                 )}
                             </motion.section>
+
+                            {/* ── Section divider ── */}
+                            <div className="border-t border-[var(--color-neutral-200)]" />
+
+                            {/* ── Where you'll sleep (Bed Configuration) ── */}
+                            <BedConfiguration 
+                                bedTypes={property.bedTypes || []} 
+                                bedroomsNumber={property.bedroomsNumber} 
+                                dict={dict} 
+                                lang={lang} 
+                            />
 
                             {/* ── Section divider ── */}
                             <div className="border-t border-[var(--color-neutral-200)]" />

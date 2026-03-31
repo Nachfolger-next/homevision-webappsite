@@ -10,11 +10,17 @@ export const metadata: Metadata = {
     alternates: getAlternates('/properties'),
 };
 
+import { getListingsWithPricing } from '@/lib/hostaway';
+import { getDictionary } from '@/lib/get-dictionary';
+
 export default async function PropertiesPage({
     params,
 }: {
     params: Promise<{ lang: string }>;
 }) {
     const { lang } = await params;
-    return <PropertiesClient lang={lang as Locale} />;
+    const listings = await getListingsWithPricing(lang);
+    const dict = await getDictionary(lang as Locale);
+
+    return <PropertiesClient lang={lang as Locale} initialListings={listings} dict={dict} />;
 }

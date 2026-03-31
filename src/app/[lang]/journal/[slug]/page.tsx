@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
+import Mermaid from '@/components/Mermaid';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Locale; slug: string }> }): Promise<Metadata> {
     const { lang, slug } = await params;
@@ -66,8 +67,32 @@ export default async function ArticlePage({ params }: { params: Promise<{ lang: 
         notFound();
     }
 
+    const articleSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: article.title,
+        description: article.excerpt,
+        image: article.img ? `https://homevision.gr${article.img}` : 'https://homevision.gr/og-image.png',
+        datePublished: article.date,
+        dateModified: article.date,
+        author: [{
+            '@type': 'Person',
+            name: 'Andreas Patsis', // Explicit author mapping as required by GEO
+            url: 'https://homevision.gr/about'
+        }],
+        publisher: {
+            '@type': 'Organization',
+            name: 'Homevision',
+            logo: {
+                '@type': 'ImageObject',
+                url: 'https://homevision.gr/logo-color.png'
+            }
+        }
+    };
+
     return (
         <main className="min-h-screen bg-[var(--color-background)]">
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
             <Header lang={lang} />
 
             {/* Spacer for fixed header */}
@@ -121,7 +146,24 @@ export default async function ArticlePage({ params }: { params: Promise<{ lang: 
                 {/* Content */}
                 <div className="container max-w-3xl">
                     <div className="prose prose-neutral prose-lg lg:prose-xl max-w-none prose-headings:font-serif prose-headings:tracking-[-0.02em] prose-a:text-[var(--color-accent)] prose-a:no-underline hover:prose-a:text-[var(--color-accent-dark)] prose-img:rounded-xl">
-                        <ReactMarkdown>
+                        <ReactMarkdown
+                            components={{
+                                code(props) {
+                                    const { className, children, node, ...rest } = props;
+                                    const match = /language-(\w+)/.exec(className || '');
+                                    const isInline = !match && !className; // Basic fallback for inline
+
+                                    if (!isInline && match && match[1] === 'mermaid') {
+                                        return <Mermaid chart={String(children).replace(/\n$/, '')} />;
+                                    }
+                                    return (
+                                        <code className={className} {...rest}>
+                                            {children}
+                                        </code>
+                                    );
+                                }
+                            }}
+                        >
                             {article.content}
                         </ReactMarkdown>
                     </div>

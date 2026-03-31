@@ -1,24 +1,34 @@
 import { Locale } from '@/i18n-config';
 import { getAlternates } from '@/lib/metadata';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
-export const metadata = {
-    title: 'Πολιτική Απορρήτου | Homevision',
-    description: 'Πολιτική Απορρήτου και προστασία δεδομένων της Homevision.',
-    alternates: getAlternates('/privacy'),
+const getLocalized = (obj: Record<string, string>, lang: string) => obj[lang] || obj['en'] || '';
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }) {
+    const { lang } = await params;
+    const title = lang === 'el' ? 'Πολιτική Απορρήτου | Homevision' : 'Privacy Policy | Homevision';
+    const description = lang === 'el'
+        ? 'Πολιτική Απορρήτου και προστασία δεδομένων της Homevision.'
+        : 'Privacy Policy and data protection for Homevision property management.';
+    return { title, description, alternates: getAlternates('/privacy') };
+}
+
+const labels = {
+    title: { el: 'Πολιτική Απορρήτου', en: 'Privacy Policy', ru: 'Политика конфиденциальности', tr: 'Gizlilik Politikası', bg: 'Политика за поверителност', he: 'מדיניות פרטיות' },
+    lastUpdated: { el: 'Τελευταία ενημέρωση: Φεβρουάριος 2026', en: 'Last updated: February 2026', ru: 'Последнее обновление: Февраль 2026', tr: 'Son güncelleme: Şubat 2026', bg: 'Последна актуализация: Февруари 2026', he: 'עדכון אחרון: פברואר 2026' },
 };
 
-export default function PrivacyPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function PrivacyPage({ params }: { params: Promise<{ lang: Locale }> }) {
+    const { lang } = await params;
     const isGreek = lang === 'el';
-
-    const title = isGreek ? 'Πολιτική Απορρήτου' : 'Privacy Policy';
-    const lastUpdated = isGreek ? 'Τελευταία ενημέρωση: Φεβρουάριος 2026' : 'Last updated: February 2026';
 
     const content = isGreek ? (
         <>
             <section className="mb-10">
                 <h2 className="text-2xl font-serif mb-4">1. Εισαγωγή</h2>
                 <p className="mb-4">
-                    Η Homevision ΙΚΕ ("εμείς", "εμάς", "μας") σέβεται το απόρρητό σας και δεσμεύεται να προστατεύει
+                    Η Homevision ΙΚΕ (&quot;εμείς&quot;, &quot;εμάς&quot;, &quot;μας&quot;) σέβεται το απόρρητό σας και δεσμεύεται να προστατεύει
                     τα προσωπικά σας δεδομένα σύμφωνα με τον Γενικό Κανονισμό Προστασίας Δεδομένων (GDPR) (ΕΕ) 2016/679.
                 </p>
             </section>
@@ -57,7 +67,7 @@ export default function PrivacyPage({ params: { lang } }: { params: { lang: Loca
             <section className="mb-10">
                 <h2 className="text-2xl font-serif mb-4">1. Introduction</h2>
                 <p className="mb-4">
-                    Homevision IKE ("we", "us", "our") respects your privacy and is committed to protecting
+                    Homevision IKE (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) respects your privacy and is committed to protecting
                     your personal data in compliance with the General Data Protection Regulation (GDPR) (EU) 2016/679.
                 </p>
             </section>
@@ -94,14 +104,18 @@ export default function PrivacyPage({ params: { lang } }: { params: { lang: Loca
     );
 
     return (
-        <main className="bg-white pt-32 pb-24 font-sans text-[var(--color-neutral-800)] text-base/relaxed">
-            <div className="container max-w-3xl">
-                <h1 className="text-4xl md:text-5xl font-serif mb-4 tracking-[-0.03em]">{title}</h1>
-                <p className="text-[var(--color-neutral-500)] text-sm mb-12 uppercase tracking-wide">{lastUpdated}</p>
-                <div className="prose prose-neutral max-w-none">
-                    {content}
+        <main className="min-h-screen bg-white flex flex-col">
+            <Header lang={lang} />
+            <div className="flex-1 pt-32 pb-24 font-sans text-[var(--color-text)] text-base/relaxed">
+                <div className="container max-w-3xl">
+                    <h1 className="text-4xl md:text-5xl font-serif mb-4 tracking-[-0.03em]">{getLocalized(labels.title, lang)}</h1>
+                    <p className="text-[var(--color-neutral-500)] text-sm mb-12 uppercase tracking-wide">{getLocalized(labels.lastUpdated, lang)}</p>
+                    <div className="prose prose-neutral max-w-none">
+                        {content}
+                    </div>
                 </div>
             </div>
+            <Footer lang={lang} />
         </main>
     );
 }

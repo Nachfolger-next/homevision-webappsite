@@ -53,7 +53,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
             {/* Spacer for fixed header */}
             <div style={{ height: '120px' }} />
 
-            <div className="container pb-20 md:pb-32">
+            <div className="container pb-20 md:pb-32" id="contact-top">
                 {/* Asymmetric header */}
                 <div className="max-w-xl mb-16">
                     <span className="editorial-rule editorial-rule--accent mb-6 block" />
@@ -103,7 +103,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
                                     <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--color-neutral-400)] font-medium block mb-1">
                                         {getLocalized(content.office, lang)}
                                     </span>
-                                    <p className="text-lg font-serif">Εδμόνδου Ροστάν 9, 54641</p>
+                                    <p className="text-lg font-serif">{lang === 'el' ? 'Εδμόνδου Ροστάν 9, 54641' : '9 Edmondou Rostan St, 54641'}</p>
                                     <p className="text-sm text-[var(--color-neutral-400)] mt-1">Thessaloniki, Greece</p>
                                 </div>
                             </div>
@@ -144,7 +144,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
                 </div>
             </div>
 
-            <CallToAction lang={lang} />
+            <CallToAction lang={lang} isContactPage={true} />
             <Footer lang={lang} />
         </main>
     );

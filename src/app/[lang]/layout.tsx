@@ -3,6 +3,8 @@ import { Manrope, Cormorant_Garamond, Noto_Sans_Hebrew, Source_Serif_4 } from 'n
 import '../globals.css';
 import { i18n } from '../../i18n-config';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
+import FacebookPixel from '@/components/FacebookPixel';
+import CookieConsent from '@/components/CookieConsent';
 
 const manrope = Manrope({
   subsets: ['latin', 'greek', 'cyrillic'],
@@ -34,6 +36,14 @@ export const metadata: Metadata = {
     siteName: 'Homevision',
     type: 'website',
     locale: 'en_US',
+    images: [
+      {
+        url: 'https://homevision.gr/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Homevision — Premium Property Management in Greece',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
@@ -55,12 +65,48 @@ export default async function RootLayout({
 }>) {
   const { lang } = await params;
   const dir = lang === 'he' ? 'rtl' : 'ltr';
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    '@id': 'https://homevision.gr',
+    name: 'Homevision',
+    legalName: 'Homevision IKE',
+    description: 'Premium short-term rental property management in Greece.',
+    url: 'https://homevision.gr',
+    logo: 'https://homevision.gr/logo-color.png',
+    image: 'https://homevision.gr/og-image.png',
+    telephone: '+306949413865',
+    email: 'info@homevision.gr',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Edmondou Rostan 9',
+      addressLocality: 'Thessaloniki',
+      postalCode: '54641',
+      addressCountry: 'GR',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 40.6264622,
+      longitude: 22.9176253,
+    },
+    areaServed: [
+      { '@type': 'City', name: 'Thessaloniki' },
+      { '@type': 'AdministrativeArea', name: 'Chalkidiki' },
+      { '@type': 'City', name: 'Athens' },
+    ],
+  };
+
   return (
     <html lang={lang} dir={dir} className={`${manrope.variable} ${cormorant.variable} ${sourceSerif.variable} ${notoHebrew.variable}`}>
+      <head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+      </head>
       <body className={manrope.className}>
         <GoogleAnalytics />
+        <FacebookPixel />
         <SmoothScroll />
         {children}
+        <CookieConsent lang={lang} />
       </body>
     </html>
   );

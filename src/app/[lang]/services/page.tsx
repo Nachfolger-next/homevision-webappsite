@@ -14,8 +14,34 @@ export const metadata: Metadata = {
     alternates: getAlternates('/services'),
 };
 
+import { getDictionary } from '@/lib/get-dictionary';
+
 export default async function ServicesPage({ params }: { params: Promise<{ lang: Locale }> }) {
     const { lang } = await params;
+    const dict = await getDictionary(lang);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const faqs = (dict.services as any)?.faqs || [];
 
-    return <ServicesClient lang={lang} />;
+    const faqSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((faq: { q: string; a: string }) => ({
+            '@type': 'Question',
+            name: faq.q,
+            acceptedAnswer: {
+                '@type': 'Answer',
+                text: faq.a,
+            },
+        })),
+    };
+
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+            />
+            <ServicesClient lang={lang} dict={dict} />
+        </>
+    );
 }

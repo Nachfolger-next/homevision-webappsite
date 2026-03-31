@@ -3,7 +3,9 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Locale } from '@/i18n-config';
+import MagneticButton from '@/components/ui/MagneticButton';
 
 const content = {
     headline: { el: 'Premium Φιλοξενία.\nΑνέμελη Ιδιοκτησία.', en: 'Your Property in Greece.\nManaged Like You\'re Next Door.', ru: 'Ваша Недвижимость в Греции.\nПод Управлением Как Будто Вы Рядом.', tr: 'Yunanistan\'daki Mülkünüz.\nYanınızdaymışız Gibi Yönetiliyor.', bg: 'Вашият Имот в Гърция.\nУправляван Сякаш Сте До Нас.', he: 'הנכס שלכם ביוון.\nמנוהל כאילו אתם ממש כאן.' },
@@ -56,10 +58,14 @@ export default function Hero({ lang = 'en' }: { lang?: Locale }) {
                 style={{ y }}
                 className="absolute inset-0 z-0"
             >
-                <div
-                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                <Image
+                    src="/hero.webp"
+                    alt="Homevision Premium Property Management"
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="object-cover object-center"
                     style={{
-                        backgroundImage: 'url(/hero.webp)',
                         filter: 'contrast(1.05) brightness(0.95)',
                     }}
                 />
@@ -191,19 +197,20 @@ export default function Hero({ lang = 'en' }: { lang?: Locale }) {
                     </p>
                 </motion.div>
 
-                {/* Mobile CTA — in thumb zone */}
+                {/* Mobile & Desktop CTA — in thumb zone */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="mt-6 md:hidden"
+                    className="mt-8 md:mt-12"
                 >
-                    <Link
+                    <MagneticButton
                         href={`/${lang}/contact`}
                         className="inline-block px-7 py-3.5 bg-white text-[var(--color-text)] text-[10px] uppercase tracking-[0.15em] font-bold rounded-full hover:bg-[var(--color-accent)] hover:text-white transition-colors"
+                        magneticIntensity={0.15}
                     >
                         {getLocalized(content.cta, lang)}
-                    </Link>
+                    </MagneticButton>
                 </motion.div>
             </motion.div>
 

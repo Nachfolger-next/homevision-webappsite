@@ -186,9 +186,14 @@ export interface HostawayReview {
     guestName: string;
 }
 
-// --- Amenity ---
+// --- Amenity and BedType ---
 
 export interface HostawayAmenity {
+    id: number;
+    name: string;
+}
+
+export interface HostawayBedTypeDictionary {
     id: number;
     name: string;
 }
@@ -226,6 +231,7 @@ export interface PropertyListing {
     minNights: number;
     currencyCode: string;
     amenityIds: number[];
+    bedTypes: { id: number; name: string; quantity: number }[];
     images: { url: string; caption: string | null }[];
 }
 

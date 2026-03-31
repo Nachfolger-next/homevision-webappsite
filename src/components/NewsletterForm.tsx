@@ -14,12 +14,21 @@ export default function NewsletterForm({ lang }: { lang: string }) {
 
         setStatus('submitting');
 
-        // Simulate API call for newsletter
-        await new Promise(r => setTimeout(r, 600));
+        try {
+            const res = await fetch('/api/newsletter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email.trim() }),
+            });
 
-        trackEvent('newsletter_signup', 'Form', 'Journal Newsletter');
-        setStatus('success');
-        setEmail('');
+            if (!res.ok) throw new Error('Failed');
+
+            trackEvent('newsletter_signup', 'Form', 'Journal Newsletter');
+            setStatus('success');
+            setEmail('');
+        } catch {
+            setStatus('idle');
+        }
     };
 
     if (status === 'success') {
