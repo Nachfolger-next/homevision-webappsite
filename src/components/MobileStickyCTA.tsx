@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar } from 'lucide-react';
+import Link from 'next/link';
 import type { Locale } from '@/i18n-config';
 
 const dictionary: Record<string, Record<Locale, string>> = {
@@ -33,10 +34,6 @@ export default function MobileStickyCTA({ lang }: MobileStickyCTAProps) {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const scrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
     return (
         <AnimatePresence>
             {isVisible && (
@@ -49,13 +46,13 @@ export default function MobileStickyCTA({ lang }: MobileStickyCTAProps) {
                 >
                     <div className="absolute inset-0 bg-gradient-to-t from-white via-white/95 to-transparent pointer-events-none" />
                     
-                    <button
-                        onClick={scrollToTop}
+                    <Link
+                        href={`/${lang}/properties`}
                         className="relative w-full flex items-center justify-center gap-2 bg-[var(--color-accent)] text-white py-4 rounded-xl font-semibold shadow-lg shadow-[var(--color-accent)]/20 active:scale-[0.98] transition-all"
                     >
                         <Calendar size={18} />
                         {dictionary.checkAvailability[lang] || dictionary.checkAvailability.en}
-                    </button>
+                    </Link>
                 </motion.div>
             )}
         </AnimatePresence>
