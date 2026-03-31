@@ -1,6 +1,6 @@
 import { Locale } from '@/i18n-config';
 
-const dictionaries: Record<string, () => Promise<Record<string, string>>> = {
+const dictionaries: Record<string, () => Promise<Record<string, any>>> = {
     el: () => import('@/translations/el.json').then(m => m.default),
     en: () => import('@/translations/en.json').then(m => m.default),
     ru: () => import('@/translations/ru.json').then(m => m.default),
@@ -9,7 +9,7 @@ const dictionaries: Record<string, () => Promise<Record<string, string>>> = {
     he: () => import('@/translations/he.json').then(m => m.default),
 };
 
-export type Dictionary = Record<string, string>;
+export type Dictionary = Record<string, any>;
 
 export const getDictionary = async (locale: Locale): Promise<Dictionary> => {
     const loader = dictionaries[locale] || dictionaries['el'];
