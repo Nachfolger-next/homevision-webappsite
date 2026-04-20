@@ -75,15 +75,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         // Hostaway API might be unavailable during build
     }
 
-    // Default top-level redirect entries
-    for (const route of routes) {
-        sitemapEntries.push({
-            url: `${baseUrl}${route}`,
-            lastModified: new Date(),
-            changeFrequency: route === '' || route === '/portfolio' ? 'weekly' : 'monthly',
-            priority: route === '' ? 1 : 0.8,
-        });
-    }
-
     return sitemapEntries;
 }
