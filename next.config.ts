@@ -17,6 +17,30 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/listing',
+        destination: '/listings',
+        permanent: true,
+      },
+      {
+        source: '/:lang/listing',
+        destination: '/:lang/listings',
+        permanent: true,
+      },
+      {
+        source: '/listing/:id',
+        destination: '/listings/:id',
+        permanent: true,
+      },
+      {
+        source: '/:lang/listing/:id',
+        destination: '/:lang/listings/:id',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -25,7 +25,28 @@ function getLocale(request: NextRequest): string | undefined {
 export function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
-    // Check if there is any supported locale in the pathname
+    // 1. Handle booking subdomain routing
+    const hostname = request.headers.get('host') || '';
+    const isBookingSubdomain = hostname.startsWith('booking.');
+
+    if (isBookingSubdomain) {
+        // Redirect root / to /properties
+        if (pathname === '/') {
+            const locale = getLocale(request);
+            return NextResponse.redirect(new URL(`/${locale}/properties`, request.url));
+        }
+
+        // Redirect exact locale root (e.g. /en or /el) to /en/properties or /el/properties
+        const isExactLocaleRoot = i18n.locales.some(
+            (locale) => pathname === `/${locale}` || pathname === `/${locale}/`
+        );
+        if (isExactLocaleRoot) {
+            const locale = pathname.split('/')[1];
+            return NextResponse.redirect(new URL(`/${locale}/properties`, request.url));
+        }
+    }
+
+    // 2. Default locale redirection
     const pathnameIsMissingLocale = i18n.locales.every(
         (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
     );
